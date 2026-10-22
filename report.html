@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Effective Automation Coverage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b0d;
+    --surface: #141418;
+    --surface-2: #1b1b20;
+    --border: #2a2a30;
+    --border-soft: #202026;
+    --text: #f3f1ec;
+    --text-dim: #a8a7af;
+    --text-faint: #6e6d76;
+    --accent: #e0a94a;
+    --accent-dim: #e0a94a99;
+    --accent-bg: #e0a94a1a;
+    --muted-num: #8a8990;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 48px 32px 96px;
+  }
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .display {
+    font-family: "Big Shoulders Display", "Arial Narrow", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .mono {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border-soft);
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .eyebrow-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .eyebrow-row .dot { color: var(--text-faint); }
+
+  h1 {
+    margin: 0;
+    font-size: 48px;
+    line-height: 1.02;
+    color: var(--text);
+  }
+
+  .claim {
+    max-width: 360px;
+    text-align: right;
+  }
+  .claim blockquote {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--text-dim);
+  }
+  .claim p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* ---------- top grid ---------- */
+  .top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 28px;
+    margin-bottom: 36px;
+  }
+
+  .panel-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 14px;
+  }
+
+  .wrong-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .wrong-cell {
+    padding: 22px 20px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .wrong-cell:nth-child(2n) { border-right: none; }
+  .wrong-cell:nth-child(n+3) { border-bottom: none; }
+  .wrong-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: block;
+  }
+  .wrong-cell h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .wrong-cell p {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  .answers-panel {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 24px 20px;
+  }
+
+  .bar-row { margin-bottom: 18px; }
+  .bar-row:last-of-type { margin-bottom: 22px; }
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 7px;
+  }
+  .bar-label .count {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .bar-label .sub {
+    color: var(--text-faint);
+    font-size: 12px;
+  }
+  .bar-track {
+    position: relative;
+    height: 14px;
+    border-radius: 7px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    display: flex;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 7px 0 0 7px;
+  }
+  .bar-fill.full { border-radius: 7px; }
+  .bar-rest {
+    height: 100%;
+    background: repeating-linear-gradient(
+      135deg,
+      transparent, transparent 3px,
+      var(--border) 3px, var(--border) 4px
+    );
+  }
+  .bar-track.muted .bar-fill { background: var(--muted-num); }
+
+  .answer-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .answer-card {
+    background: var(--surface);
+    padding: 18px 18px 16px;
+  }
+  .answer-card.effective { background: var(--accent-bg); }
+  .answer-card .label {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 6px;
+  }
+  .answer-card.effective .label { color: var(--accent); }
+  .answer-card .pct {
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 1;
+    color: var(--muted-num);
+  }
+  .answer-card.effective .pct { color: var(--accent); }
+  .answer-card .foot {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .answer-card .foot .mono { color: var(--text-faint); }
+
+  /* ---------- bottom grid ---------- */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .metric-card {
+    background: var(--surface);
+    padding: 22px 20px;
+  }
+  .metric-kicker {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 4px;
+  }
+  .metric-kicker .accent { color: var(--accent); }
+  .metric-card h4 {
+    margin: 2px 0 12px;
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .formula-box {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .metric-card .note {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .setup-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .setup-list li { margin-bottom: 9px; }
+  .setup-list li:last-child { margin-bottom: 0; }
+  .setup-list b { color: var(--text); }
+  .setup-list code {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: var(--text);
+  }
+
+  .generated-at {
+    margin-top: 28px;
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  @media (max-width: 860px) {
+    .top-grid { grid-template-columns: 1fr; }
+    .bottom-grid { grid-template-columns: 1fr; }
+    header { flex-direction: column; align-items: flex-start; }
+    .claim { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header>
+    <div>
+      <div class="eyebrow-row">
+        <span class="eyebrow">METRIC DEEP DIVE</span>
+        <span class="dot">&middot;</span>
+        <span class="eyebrow">TEST AUTOMATION</span>
+      </div>
+      <h1 class="display">Effective Automation Coverage</h1>
+    </div>
+    <div class="claim">
+      <blockquote>&ldquo;We're at 49% automation.&rdquo;</blockquote>
+      <p>49% of what, and what were we aiming for?</p>
+    </div>
+  </header>
+
+  <div class="top-grid">
+
+    <div>
+      <div class="panel-label">Where Northwind Bank went wrong</div>
+      <div class="wrong-grid">
+        <div class="wrong-cell">
+          <span class="wrong-num">01</span>
+          <h3>A generic formula</h3>
+          <p>Implemented &divide; all test cases &times; 100. The number gets reported, then forgotten.</p>
+        </div>
+        <div class="wrong-cell">
+          <span class="wrong-num">02</span>
+          <h3>No target</h3>
+          <p>Nobody agreed in advance what &ldquo;good&rdquo; looks like, so the number is never judged.</p>
+        </div>
+        <div class="wrong-cell">
+          <span class="wrong-num">03</span>
+          <h3>Assuming 1:1</h3>
+          <p>One manual case can become many automated checks, or many fold into one. Counting scripts is not coverage.</p>
+        </div>
+        <div class="wrong-cell">
+          <span class="wrong-num">04</span>
+          <h3>Ignoring feasibility</h3>
+          <p>Some tests can't be automated, by nature or by design. Left in the denominator, 100% is impossible.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="answers-panel">
+      <div class="panel-label">Same dataset, two answers &middot; Northwind Bank demo data</div>
+
+      <div class="bar-row">
+        <div class="bar-label">
+          <span>All test cases</span>
+          <span class="count mono">90</span>
+        </div>
+        <div class="bar-track muted"><div class="bar-fill full"></div></div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label">
+          <span>Automatable <span class="sub">&middot; 22 not automatable</span></span>
+          <span class="count mono">68</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: 75.6%"></div>
+          <div class="bar-rest" style="width: 24.4%"></div>
+        </div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label">
+          <span>Linked to an implemented automated test</span>
+          <span class="count mono">44</span>
+        </div>
+        <div class="bar-track muted"><div class="bar-fill" style="width: 48.9%"></div></div>
+      </div>
+
+      <div class="answer-cards">
+        <div class="answer-card">
+          <div class="label">Generic formula</div>
+          <div class="pct mono">49%</div>
+          <div class="foot">44 implemented &divide; 90 test cases</div>
+        </div>
+        <div class="answer-card effective">
+          <div class="label">Effective coverage</div>
+          <div class="pct mono">65%</div>
+          <div class="foot">44 implemented &divide; 68 automatable<br><span class="mono">24 still to cover = the backlog</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-grid">
+
+    <div class="metric-card">
+      <div class="metric-kicker">Metric A &middot; The ceiling</div>
+      <h4>Automation Feasibility %</h4>
+      <div class="formula-box mono">automatable test cases<br>&divide; all test cases &times; 100</div>
+      <p class="note">What &ldquo;done&rdquo; can realistically mean. Northwind Bank: 68 &divide; 90 = <b class="mono" style="color:var(--text)">76%</b>.</p>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-kicker"><span class="accent">Metric B</span> &middot; The progress</div>
+      <h4>Effective Automation Coverage %</h4>
+      <div class="formula-box mono">implemented automated tests<br>&divide; automatable test cases &times; 100</div>
+      <p class="note">Real progress against a fair expectation. Northwind Bank: 44 &divide; 68 = <b class="mono" style="color:var(--accent)">65%</b>.</p>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-kicker">How it's set up</div>
+      <h4>Reading this report</h4>
+      <ul class="setup-list">
+        <li>Every test case carries a <code>feasibility:*</code> label &mdash; <b>automatable</b> or <b>not</b> &mdash; set once, by nature or design.</li>
+        <li>Automatable cases track <code>automation:*</code> &mdash; <b>none &rarr; planned &rarr; in-progress &rarr; implemented</b>.</li>
+        <li>Effective Coverage only ever divides by automatable cases &mdash; infeasible ones never deflate the number, and never let it hit 100% by accident either.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="generated-at mono">Generated 2026-10-22 09:42 UTC &middot; 90 test cases read from sorosz89/test-coverage-agent-demo</div>
+
+</div>
+
+</body>
+</html>
