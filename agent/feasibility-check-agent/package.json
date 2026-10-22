@@ -1,0 +1,22 @@
+{
+  "name": "feasibility-check-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone Anthropic SDK agent version of the feasibility-check skill, for comparison with .claude/skills/feasibility-check(-v2).",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.1.0",
+    "@octokit/request-error": "^7.1.2",
+    "@octokit/rest": "^22.0.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
